@@ -1,5 +1,31 @@
 import { Scene } from 'phaser';
 
+interface IPlantLoader{
+
+    growthStages:number
+    load(scene:Scene) :void
+}
+
+
+
+class CornPlantLoader implements IPlantLoader{
+    growthStages: number =6
+
+    constructor(){this.growthStages=6}
+    load(scene: Scene): void {
+        scene.load.spritesheet('corn', 'crops/corn.png', {frameWidth:16, frameHeight:32})
+    }
+
+}
+
+class BeetrootPlanLoader implements IPlantLoader{
+    growthStages: number = 5
+    load(scene: Scene): void {
+         scene.load.spritesheet('beetroot', 'crops/beetroot.png', {frameWidth:16, frameHeight:32})
+    }
+}
+
+
 export class Preloader extends Scene
 {
     constructor ()
@@ -45,7 +71,21 @@ export class Preloader extends Scene
             this.load.spritesheet(`player_idle_${d}`, `Characters/Player/Idle/idle_${d}.png`, { frameWidth: 48, frameHeight: 48 });
         }
 
-    }
+        
+        /*const cornStages = 6
+        const beetrootStages = 5
+        const pumpkinStages = 6
+        const garlicStages = 5*/
+        const crops = [new CornPlantLoader(), new BeetrootPlanLoader()]
+        for(const loader of crops){
+            loader.load(this)
+        }
+
+
+
+}
+
+    
 
     create ()
     {

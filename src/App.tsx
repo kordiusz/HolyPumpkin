@@ -82,6 +82,25 @@ function App()
 
     return (
         <div id="app">
+            <section className='crop-counter-container'>
+                <div className='crop-image-wrapper'>
+                    <img src='/icons/pumpkin.png' className='crop-image'/>
+                    <div className=''>0</div>
+                </div>
+                <div className='crop-image-wrapper'>
+                    <img src='/icons/beetroot.png' className='crop-image'/>
+                    <span className=''>0</span>
+                </div>
+                <div className='crop-image-wrapper'>
+                    <img src='/icons/corn.png' className='crop-image'/>
+                    <span className=''>0</span>
+                </div>
+                <div className='crop-image-wrapper'>
+                    <img src='/icons/garlic.png' className='crop-image'/>
+                    <span className=''>0</span>
+                </div>
+            </section>
+
             <PhaserGame ref={phaserRef} currentActiveScene={currentScene} />
             <div>
                 <div>
@@ -97,6 +116,13 @@ function App()
                     <button className="button" onClick={addSprite}>Add New Sprite</button>
                 </div>
             </div>
+
+            <footer>
+                <span>Seed type</span>
+                    <div className='crop-image-wrapper'>
+                    <img src='/icons/beetroot_seed.png' className='crop-image'/>
+                    </div>
+            </footer>
         </div>
     )
 }
