@@ -102,19 +102,19 @@ function App()
 <ul>
 
   <li>
-    <img src="/icons/corn.png"/>
+    <img src="icons/corn.png"/>
     <span>Corn<span className="powerup-info">[7.5s]</span></span>
   </li>
   <li>
-    <img src="/icons/garlic.png"/>
+    <img src="icons/garlic.png"/>
     <span>Garlic <span className="powerup-info">[10s]</span></span>
   </li>
   <li>
-    <img src="/icons/pumpkin.png"/>
+    <img src="icons/pumpkin.png"/>
     <span>Pumpkin <span className="powerup-info">[max 5]</span></span>
   </li>
   <li>
-    <img src="/icons/beetroot.png"/>
+    <img src="icons/beetroot.png"/>
     <span>Beetroot <span className="powerup-info">[max 4]</span></span>
   </li>
 </ul>
