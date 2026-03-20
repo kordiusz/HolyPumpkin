@@ -18,6 +18,26 @@ class CornPlantLoader implements IPlantLoader{
 
 }
 
+class GarlicPlantLoader implements IPlantLoader{
+    growthStages: number =5
+
+    constructor(){this.growthStages=5}
+    load(scene: Scene): void {
+        scene.load.spritesheet('garlic', 'crops/garlic.png', {frameWidth:16, frameHeight:32})
+    }
+
+}
+
+class PumpkinPlantLoader implements IPlantLoader{
+    growthStages: number =6
+
+    constructor(){this.growthStages=5}
+    load(scene: Scene): void {
+        scene.load.spritesheet('pumpkin', 'crops/pumpkin.png', {frameWidth:16, frameHeight:32})
+    }
+
+}
+
 class BeetrootPlanLoader implements IPlantLoader{
     growthStages: number = 5
     load(scene: Scene): void {
@@ -61,9 +81,14 @@ export class Preloader extends Scene
         this.load.image('logo', 'logo.png');
         this.load.image('star', 'star.png');
 
+        this.load.image('well', 'well.png');
+        this.load.image('chest', 'chest.png');
+
         this.load.image('terrain_demo', 'crops/terrain_demo.png')
         this.load.image('objects_demo', 'crops/objects_demo.png')
         this.load.tilemapTiledJSON('map', 'crops/map.tmj')
+
+
 
         const directions = ["down", "up", "left", "right"]
         for(const d of directions){
@@ -76,7 +101,7 @@ export class Preloader extends Scene
         const beetrootStages = 5
         const pumpkinStages = 6
         const garlicStages = 5*/
-        const crops = [new CornPlantLoader(), new BeetrootPlanLoader()]
+        const crops = [new CornPlantLoader(), new BeetrootPlanLoader(), new GarlicPlantLoader(), new PumpkinPlantLoader()]
         for(const loader of crops){
             loader.load(this)
         }
@@ -97,7 +122,7 @@ export class Preloader extends Scene
 
 
 
-        this.scene.start('MainMenu');
+        this.scene.start('Game');
 
     }
 }

@@ -1,16 +1,13 @@
+import { Player } from '../entities/Player';
 import { EventBus } from '../EventBus';
 import { Scene } from 'phaser';
 
-interface MovementKeys{
-    left:Phaser.Input.Keyboard.Key,
-    right:Phaser.Input.Keyboard.Key,
-    up:Phaser.Input.Keyboard.Key,
-    down:Phaser.Input.Keyboard.Key,
-    space:Phaser.Input.Keyboard.Key
-}
+
+
+
 
 class PlantSpot{
-    plant:string|null = null
+    plant:Plant|null = null
     x:number;
     y:number;
     constructor(x:number, y:number){
@@ -24,7 +21,7 @@ class Plant extends Phaser.GameObjects.Sprite{
     grow(){}
 }
 
-class Beetroot extends Phaser.GameObjects.Sprite{
+class Beetroot extends Plant{
 
     growthStages:number = 5
     currentGrowthStage:number = 0
@@ -58,19 +55,64 @@ class Beetroot extends Phaser.GameObjects.Sprite{
         }
     }
 }
+class Garlic extends Plant{
 
+    growthStages:number = 5
+    currentGrowthStage:number = 0
+    timer :number = 2500
+    constructor(scene:Scene,  texture:string ='garlic', x:number = 0, y:number = 0){
+        super(scene,x,y,texture)
+        scene.add.existing(this)
+        this.setScale(5)
+    }
+
+    grow(){
+        if (this.currentGrowthStage < this.growthStages){
+            this.currentGrowthStage +=1
+        }
+        else{
+            
+        }
+        this.setFrame(this.currentGrowthStage)
+
+    }
+
+    update(delta:number): void {
+        if (this.timer > 0){
+            this.timer -= delta
+            console.log(this.timer)
+            return
+        }
+        else{
+            this.grow()
+            this.timer = 2500
+        }
+    }
+}
+
+interface Tool{
+    
+}
 export class Game extends Scene
 {
     camera: Phaser.Cameras.Scene2D.Camera;
     background: Phaser.GameObjects.Image;
     gameText: Phaser.GameObjects.Text;
-    player: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
-    cursors:MovementKeys;
+    player: Player;
     currentZone: Phaser.GameObjects.Zone | null = null;
-    lastDirection: "right" | "left" | "up" | "down" = "down";
-
+    tools : Tool[];
+    currentTool:Tool;
+    currentSeed: "Garlic" | "Pumpkin" | "Corn" | "Beetroot" = "Garlic";
     zoneToPlantSpot = new Map<string,PlantSpot>()
     plants:Phaser.GameObjects.Sprite[] = []
+    progressBar:Phaser.GameObjects.Graphics;
+    progressText:Phaser.GameObjects.Text;
+    plantingProgress:number;
+    isPlanting:boolean;
+    timer:number = 0;
+    currentSpot:PlantSpot;
+    well:Phaser.GameObjects.Sprite;
+    chest:Phaser.GameObjects.Sprite;
     constructor ()
     {
         super('Game');
@@ -78,8 +120,7 @@ export class Game extends Scene
 
     create() {
         this.camera = this.cameras.main;
-
-        const directions = ["down", "up", "left", "right"]
+                const directions = ["down", "up", "left", "right"]
         for (const d of directions) {
             this.anims.create({
                 key: `walk-${d}`,
@@ -96,12 +137,12 @@ export class Game extends Scene
             });
 
         }
-
-        this.player = this.physics.add.sprite(100, 100, 'player_idle_down');
-        this.player.setScale(2); // Match your map scale
-        this.player.setCollideWorldBounds(true);
+        this.player = new Player(this, 50, 50);
+        this.player.setDepth(100);
 
 
+        this.well = this.physics.add.staticSprite( 96,320,'well').setDepth(10).setScale(2.5);
+        this.chest = this.physics.add.staticSprite(32*22, 320, 'chest').setDepth(10).setScale(4);
         //this.physics.add.collider(this.player, map);
 
 
@@ -160,80 +201,78 @@ export class Game extends Scene
         }
 
          // Update the overlap to track the zone
-        this.physics.add.overlap(this.player, interactionZones, (p, zone) => {
+        this.physics.add.overlap(this.player.playerSprite, interactionZones, (p, zone) => {
             this.currentZone = zone as Phaser.GameObjects.Zone;
         });
-
-
-
        
 
 
 
-        if (this.input.keyboard)
-            this.cursors = this.input.keyboard.addKeys({
-                up: Phaser.Input.Keyboard.KeyCodes.W,
-                down: Phaser.Input.Keyboard.KeyCodes.S,
-                left: Phaser.Input.Keyboard.KeyCodes.A,
-                right: Phaser.Input.Keyboard.KeyCodes.D,
-                space: Phaser.Input.Keyboard.KeyCodes.SPACE
-            }) as MovementKeys;
 
-        this.player.setScale(3)
-        this.player.setDepth(10)
+ 
 
         
     }
-    
-    update(time:number, delta:number) {
-    const speed = 160;
-    this.player.body.setVelocity(0);
-
-    if (this.cursors.left.isDown) {
-        this.player.body.setVelocityX(-speed);
-        this.lastDirection = 'left'
-    } else if (this.cursors.right.isDown) {
-        this.player.body.setVelocityX(speed);
-  
-        this.lastDirection = 'right'
-    }
-
-
-    if (this.cursors.up.isDown) {
-        this.player.body.setVelocityY(-speed);
-
-        this.lastDirection = 'up'
-    } else if (this.cursors.down.isDown) {
-        this.player.body.setVelocityY(speed);
-       
-        this.lastDirection = 'down'
-    }
 
 
 
-    if (this.player.body.velocity.x !== 0 || this.player.body.velocity.y !== 0) {
-        this.player.anims.play(`walk-${this.lastDirection}`, true);
+
+update(time: number, delta: number) {
+    // 1. Update player movement
+    this.player.update(time, delta);
+
+    // 2. Check channeling conditions
+    // We only plant if: Space is DOWN AND we are overlapping a ZONE
+    const isTryingToPlant = this.player.cursors.space.isDown && this.currentZone;
+
+    if (isTryingToPlant) {
+        const spot = this.zoneToPlantSpot.get(this.currentZone!.name);
+
+        // Don't start planting if there's already a plant there
+        if (spot && !spot.plant) {
+            this.isPlanting = true;
+            this.timer += delta;
+            this.player.updatePlantingStatus(this.timer, 2000);
+
+            // 3. Check if channeling is finished
+            if (this.timer >= 2000) {
+                this.completePlanting(spot);
+                this.resetPlanting();
+            }
+        }
     } else {
-        this.player.anims.play(`idle-${this.lastDirection}`, true);
+        // 4. RESET if they let go or move away
+        this.resetPlanting();
     }
 
-    this.player.body.velocity.normalize().scale(speed);
-
-
-    if (this.cursors.space.isDown && this.currentZone){
-        const spot = this.zoneToPlantSpot.get(this.currentZone.name);
-        if(!spot || spot.plant){return}
-        const plant = new Beetroot(this);
-        plant.setOrigin(0,0)
-        plant.x = spot?.x
-        plant.y = spot?.y
-        spot.plant = "betroot"
-        this.plants.push(plant)
+    // 5. Update all growing plants
+    for (const p of this.plants) {
+        p.update(delta);
     }
 
-    for(const p of this.plants){
-        p.update(delta)
+    // CRITICAL: Reset currentZone so overlap must prove it every frame
+    this.currentZone = null;
+}
+
+// Helper to keep update() clean
+private completePlanting(spot: PlantSpot) {
+    let plant: Plant;
+    switch (this.currentSeed) {
+        case 'Garlic': plant = new Garlic(this); break;
+        default: plant = new Beetroot(this); break;
     }
+
+    plant.setOrigin(0, 0);
+    plant.x = spot.x;
+    plant.y = spot.y;
+    spot.plant = plant;
+    this.plants.push(plant);
+}
+
+private resetPlanting() {
+    this.isPlanting = false;
+    this.timer = 0;
+    this.player.updatePlantingStatus(0, 2000);
 }
 
     changeScene ()

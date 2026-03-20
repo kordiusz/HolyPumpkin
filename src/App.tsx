@@ -82,47 +82,68 @@ function App()
 
     return (
         <div id="app">
-            <section className='crop-counter-container'>
-                <div className='crop-image-wrapper'>
-                    <img src='/icons/pumpkin.png' className='crop-image'/>
-                    <div className=''>0</div>
-                </div>
-                <div className='crop-image-wrapper'>
-                    <img src='/icons/beetroot.png' className='crop-image'/>
-                    <span className=''>0</span>
-                </div>
-                <div className='crop-image-wrapper'>
-                    <img src='/icons/corn.png' className='crop-image'/>
-                    <span className=''>0</span>
-                </div>
-                <div className='crop-image-wrapper'>
-                    <img src='/icons/garlic.png' className='crop-image'/>
-                    <span className=''>0</span>
-                </div>
-            </section>
+              <div className="container">
+    <div><img src="/assets/logo-smaller.png"/></div>
 
-            <PhaserGame ref={phaserRef} currentActiveScene={currentScene} />
-            <div>
-                <div>
-                    <button className="button" onClick={changeScene}>Change Scene</button>
-                </div>
-                <div>
-                    <button disabled={canMoveSprite} className="button" onClick={moveSprite}>Toggle Movement</button>
-                </div>
-                <div className="spritePosition">Sprite Position:
-                    <pre>{`{\n  x: ${spritePosition.x}\n  y: ${spritePosition.y}\n}`}</pre>
-                </div>
-                <div>
-                    <button className="button" onClick={addSprite}>Add New Sprite</button>
-                </div>
-            </div>
+    <div className="game-layout">
+      
+      <div className="powerup-preview-side-menu">
+        <span className="title">
+          Tool
+        </span>
+        <div>
+    <img src="/icons/corn.png"/>
+    <span>Tool</span>
+  </div>  
+        <span className="title">
+          Inventory
+        </span>
+        
+<ul>
 
-            <footer>
-                <span>Seed type</span>
-                    <div className='crop-image-wrapper'>
-                    <img src='/icons/beetroot_seed.png' className='crop-image'/>
-                    </div>
-            </footer>
+  <li>
+    <img src="/icons/corn.png"/>
+    <span>Corn<span className="powerup-info">[7.5s]</span></span>
+  </li>
+  <li>
+    <img src="/icons/garlic.png"/>
+    <span>Garlic <span className="powerup-info">[10s]</span></span>
+  </li>
+  <li>
+    <img src="/icons/pumpkin.png"/>
+    <span>Pumpkin <span className="powerup-info">[max 5]</span></span>
+  </li>
+  <li>
+    <img src="/icons/beetroot.png"/>
+    <span>Beetroot <span className="powerup-info">[max 4]</span></span>
+  </li>
+</ul>
+
+      </div>
+
+
+      <PhaserGame ref={phaserRef} currentActiveScene={currentScene} />
+
+      <div className="controls-info">
+        <span className="title">
+          Controls
+        </span>
+        
+<ul>
+  <li>
+    <span className="control-key">W S A D</span>
+    <span>Movement</span>
+  </li>
+  <li>
+    <span className="control-key">SPACE</span>
+    <span>Action</span>
+  </li>
+</ul>
+
+      </div>
+    </div>
+
+  </div>
         </div>
     )
 }
